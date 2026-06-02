@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0f1923"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="صندوق الادخار"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="apple-touch-icon" href="icon.svg"/>
+<title>🪙 صندوق الادخار</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap');
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  :root{
+    --bg:#0f1923;--bg2:#1a2d42;--bg3:#111d2b;
+    --border:#1e3a5f;--accent:#2563eb;--accent2:#60a5fa;
+    --green:#16a34a;--yellow:#facc15;--red:#ef4444;
+    --text:#e8f0fe;--text2:#90b8d8;--text3:#5a8ab0;
+  }
+  body{font-family:'Cairo',Tahoma,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;padding-bottom:100px;overflow-x:hidden}
+
+  /* Header */
+  .header{background:linear-gradient(135deg,#0f1923,#1a3a5c);padding:24px 20px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+  .header-left{display:flex;align-items:center;gap:12px}
+  .logo{font-size:34px;line-height:1}
+  .app-title{font-size:21px;font-weight:900;color:#fff}
+  .app-sub{font-size:11px;color:var(--text3);margin-top:2px}
+  .saved-badge{background:var(--green);color:#fff;font-size:12px;padding:4px 12px;border-radius:20px;font-weight:700;animation:fadeIn .3s ease}
+
+  /* Nav */
+  .nav{display:flex;background:var(--bg3);border-bottom:1px solid var(--border);position:sticky;top:73px;z-index:99}
+  .nav-btn{flex:1;padding:11px 4px;background:none;border:none;border-bottom:2px solid transparent;color:var(--text3);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;font-family:inherit}
+  .nav-btn.active{color:var(--accent2);border-bottom-color:var(--accent2);background:var(--bg)}
+  .nav-btn span:first-child{font-size:18px}
+
+  /* Content */
+  .content{padding:18px 15px}
+
+  /* Cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .card{border-radius:16px;padding:16px 14px;box-shadow:0 4px 20px rgba(0,0,0,.35)}
+  .card-blue{background:linear-gradient(135deg,#1a3a5c,#2563eb)}
+  .card-green{background:linear-gradient(135deg,#14532d,#16a34a)}
+  .card-label{font-size:10px;color:rgba(255,255,255,.75);margin-bottom:5px}
+  .card-value{font-size:20px;font-weight:900;color:#fff;line-height:1.1}
+  .card-unit{font-size:10px;color:rgba(255,255,255,.6);margin-top:3px}
+
+  /* Progress */
+  .progress-box{background:var(--bg2);border-radius:14px;padding:15px;margin-bottom:14px;border:1px solid var(--border)}
+  .progress-header{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:9px}
+  .progress-track{height:9px;background:var(--bg);border-radius:99px;overflow:hidden;margin-bottom:5px}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .6s ease}
+  .progress-pct{font-size:11px;color:var(--text3);text-align:left}
+
+  /* Quick */
+  .quick-box{background:linear-gradient(135deg,var(--bg2),#1e3a5f);border-radius:16px;padding:18px;margin-bottom:14px;border:1px solid #2e5a8a;text-align:center}
+  .quick-title{font-size:12px;color:var(--text2);margin-bottom:3px}
+  .quick-month{font-size:17px;font-weight:700;color:#fff;margin-bottom:6px}
+  .quick-amount{font-size:28px;font-weight:900;color:var(--accent2);margin-bottom:14px}
+  .quick-btn{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:12px 36px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;width:100%}
+  .quick-btn.paid{background:var(--green)}
+  .quick-btn:active{transform:scale(.97)}
+
+  /* Remain */
+  .remain-box{background:var(--bg2);border-radius:14px;padding:15px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+  .remain-label{font-size:13px;color:var(--text2)}
+  .remain-value{font-size:18px;font-weight:800;color:var(--yellow)}
+
+  /* Section title */
+  .section-title{font-size:14px;font-weight:700;color:var(--text2);margin-bottom:13px}
+
+  /* Month list */
+  .month-list{display:flex;flex-direction:column;gap:8px}
+  .month-row{background:var(--bg2);border-radius:12px;padding:12px 13px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);transition:all .2s}
+  .month-row.paid{border-color:var(--green);background:#0a1f10}
+  .month-row.current-month{border-color:var(--accent)}
+  .month-info{flex:1}
+  .month-name{font-size:14px;font-weight:700;color:#e0ecff;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .current-tag{font-size:9px;background:var(--accent);color:#fff;padding:1px 7px;border-radius:20px}
+  .month-amt{font-size:12px;color:var(--accent2);display:flex;align-items:center;gap:5px}
+  .edit-amt-btn{background:none;border:none;cursor:pointer;font-size:12px;padding:0;line-height:1;opacity:.7}
+  .edit-row{display:flex;align-items:center;gap:6px;margin-top:5px}
+  .edit-input{background:var(--bg);border:1px solid var(--accent);color:#fff;border-radius:8px;padding:5px 8px;font-size:13px;width:90px;font-family:inherit;direction:ltr}
+  .edit-save{background:var(--green);color:#fff;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:13px}
+  .edit-cancel{background:#7f1d1d;color:#fca5a5;border:none;border-radius:7px;padding:5px 10px;cursor:pointer;font-size:13px}
+  .check-btn{width:38px;height:38px;border-radius:50%;border:2px solid #2e5a8a;background:none;color:var(--text3);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+  .check-btn.paid{background:var(--green);border-color:var(--green);color:#fff}
+  .check-btn:active{transform:scale(.92)}
+
+  /* Settings */
+  .settings-card{background:var(--bg2);border-radius:16px;padding:18px;border:1px solid var(--border);margin-bottom:14px}
+  .setting-label{display:block;font-size:12px;color:var(--text2);margin-bottom:6px;margin-top:14px}
+  .setting-label:first-child{margin-top:0}
+  .setting-input{width:100%;background:var(--bg);border:1px solid #2e5a8a;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;direction:ltr;outline:none}
+  .setting-input:focus{border-color:var(--accent)}
+  .date-row{display:flex;gap:10px}
+  .date-row .setting-input{width:90px;flex-shrink:0}
+  .date-select{flex:1;background:var(--bg);border:1px solid #2e5a8a;color:#fff;border-radius:10px;padding:10px 12px;font-size:14px;font-family:inherit;outline:none}
+  .save-btn{margin-top:18px;width:100%;background:var(--accent);color:#fff;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:background .2s}
+  .save-btn:active{background:#1d4ed8}
+  .danger-card{background:#1a0f0f;border-radius:16px;padding:18px;border:1px solid #5a1d1d}
+  .danger-title{font-size:12px;color:#f87171;margin-bottom:12px;font-weight:700}
+  .reset-btn{width:100%;background:#7f1d1d;color:#fca5a5;border:1px solid #991b1b;border-radius:12px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+
+  /* Share card */
+  .share-card{background:linear-gradient(135deg,#1a2d42,#1a3a5c);border-radius:16px;padding:18px;border:1px solid #2e5a8a;margin-bottom:14px;text-align:center}
+  .share-title{font-size:13px;color:var(--text2);margin-bottom:10px}
+  .share-url{background:var(--bg);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--accent2);word-break:break-all;margin-bottom:12px;border:1px solid var(--border);direction:ltr;text-align:left}
+  .share-btn{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;margin-bottom:8px}
+  .install-steps{background:var(--bg);border-radius:10px;padding:12px;text-align:right}
+  .install-step{font-size:12px;color:var(--text2);padding:4px 0;border-bottom:1px solid var(--border)}
+  .install-step:last-child{border-bottom:none}
+
+  /* Toast */
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:10px 22px;border-radius:30px;font-size:14px;font-weight:700;z-index:999;animation:slideUp .3s ease;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+
+  /* Bottom safe area */
+  .bottom-safe{height:env(safe-area-inset-bottom,20px)}
+
+  @keyframes fadeIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+  @keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* Hide scrollbar */
+  ::-webkit-scrollbar{width:0}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="logo">🪙</div>
+    <div>
+      <div class="app-title">صندوق الادخار</div>
+      <div class="app-sub">سجّل اشتراكاتك الشهرية</div>
+    </div>
+  </div>
+  <div class="saved-badge" id="savedBadge" style="display:none">✓ تم الحفظ</div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" id="btn-dashboard" onclick="showView('dashboard')">
+    <span>📊</span><span>الرئيسية</span>
+  </button>
+  <button class="nav-btn" id="btn-history" onclick="showView('history')">
+    <span>📅</span><span>السجل</span>
+  </button>
+  <button class="nav-btn" id="btn-settings" onclick="showView('settings')">
+    <span>⚙️</span><span>الإعدادات</span>
+  </button>
+  <button class="nav-btn" id="btn-share" onclick="showView('share')">
+    <span>🔗</span><span>المشاركة</span>
+  </button>
+</div>
+
+<div class="content" id="content"></div>
+
+<div class="bottom-safe"></div>
+
+<script>
+const MONTHS = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
+// State
+let state = {
+  monthlyAmount: 123.133,
+  startYear: 2026, startMonth: 7,
+  endYear: 2027, endMonth: 7,
+  deposits: {},      // key -> true
+  customAmounts: {}  // key -> number
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem("saving_box_v2");
+    if (s) state = { ...state, ...JSON.parse(s) };
+  } catch(e) {}
+}
+
+function saveState() {
+  try {
+    localStorage.setItem("saving_box_v2", JSON.stringify(state));
+    showSaved();
+  } catch(e) {}
+}
+
+function showSaved() {
+  const b = document.getElementById("savedBadge");
+  b.style.display = "block";
+  clearTimeout(b._t);
+  b._t = setTimeout(() => b.style.display = "none", 1500);
+}
+
+function showToast(msg) {
+  const old = document.querySelector(".toast");
+  if (old) old.remove();
+  const t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
+}
+
+function monthKey(y, m) { return `${y}-${String(m).padStart(2,"0")}`; }
+
+function getCurrentKey() {
+  const n = new Date();
+  return monthKey(n.getFullYear(), n.getMonth() + 1);
+}
+
+function getMonths() {
+  const months = [];
+  let y = state.startYear, m = state.startMonth;
+  while (y < state.endYear || (y === state.endYear && m <= state.endMonth)) {
+    months.push({ year: y, month: m, key: monthKey(y, m) });
+    m++; if (m > 12) { m = 1; y++; }
+  }
+  return months;
+}
+
+function getAmt(key) {
+  return state.customAmounts[key] !== undefined ? state.customAmounts[key] : state.monthlyAmount;
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString("ar-JO", { minimumFractionDigits: 3, maximumFractionDigits: 3 });
+}
+
+// ─── Views ───────────────────────────────────────────────
+let currentView = "dashboard";
+
+function showView(v) {
+  currentView = v;
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("btn-" + v).classList.add("active");
+  render();
+}
+
+function render() {
+  const c = document.getElementById("content");
+  if (currentView === "dashboard") c.innerHTML = renderDashboard();
+  else if (currentView === "history") c.innerHTML = renderHistory();
+  else if (currentView === "settings") c.innerHTML = renderSettings();
+  else if (currentView === "share") c.innerHTML = renderShare();
+}
+
+function renderDashboard() {
+  const months = getMonths();
+  const totalPaid = months.reduce((s, m) => s + (state.deposits[m.key] ? getAmt(m.key) : 0), 0);
+  const totalExpected = months.reduce((s, m) => s + getAmt(m.key), 0);
+  const paidCount = months.filter(m => state.deposits[m.key]).length;
+  const progress = months.length ? (paidCount / months.length * 100) : 0;
+  const remaining = totalExpected - totalPaid;
+  const nowKey = getCurrentKey();
+  const nowMonth = months.find(m => m.key === nowKey);
+  const isPaidNow = nowMonth && !!state.deposits[nowKey];
+
+  return `
+  <div class="cards">
+    <div class="card card-blue">
+      <div class="card-label">المدفوع حتى الآن</div>
+      <div class="card-value">${fmt(totalPaid)}</div>
+      <div class="card-unit">دينار أردني</div>
+    </div>
+    <div class="card card-green">
+      <div class="card-label">الإجمالي المتوقع</div>
+      <div class="card-value">${fmt(totalExpected)}</div>
+      <div class="card-unit">دينار أردني</div>
+    </div>
+  </div>
+
+  <div class="progress-box">
+    <div class="progress-header">
+      <span>تقدّم الصندوق</span>
+      <span style="color:var(--accent2);font-weight:700">${paidCount} / ${months.length} شهر</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" style="width:${progress}%"></div>
+    </div>
+    <div class="progress-pct">${progress.toFixed(1)}% مكتمل</div>
+  </div>
+
+  ${nowMonth ? `
+  <div class="quick-box">
+    <div class="quick-title">الشهر الحالي</div>
+    <div class="quick-month">${MONTHS[nowMonth.month-1]} ${nowMonth.year}</div>
+    <div class="quick-amount">${fmt(getAmt(nowKey))} د.أ</div>
+    <button class="quick-btn ${isPaidNow ? 'paid' : ''}" onclick="toggleDeposit('${nowKey}')">
+      ${isPaidNow ? '✓ تم تسجيل الدفعة' : '+ سجّل الدفعة الشهرية'}
+    </button>
+  </div>` : ''}
+
+  <div class="remain-box">
+    <div class="remain-label">المتبقي حتى تاريخ السحب</div>
+    <div class="remain-value">${fmt(remaining)} د.أ</div>
+  </div>`;
+}
+
+function renderHistory() {
+  const months = getMonths();
+  const nowKey = getCurrentKey();
+  const rows = months.map(m => {
+    const paid = !!state.deposits[m.key];
+    const amt = getAmt(m.key);
+    const isCurrent = m.key === nowKey;
+    return `
+    <div class="month-row ${paid ? 'paid' : ''} ${isCurrent ? 'current-month' : ''}" id="row-${m.key}">
+      <div class="month-info">
+        <div class="month-name">
+          ${MONTHS[m.month-1]} ${m.year}
+          ${isCurrent ? '<span class="current-tag">الحالي</span>' : ''}
+        </div>
+        <div class="month-amt" id="amtDisplay-${m.key}">
+          ${fmt(amt)} د.أ
+          <button class="edit-amt-btn" onclick="startEdit('${m.key}',${amt})" title="تعديل">✏️</button>
+        </div>
+      </div>
+      <button class="check-btn ${paid ? 'paid' : ''}" onclick="toggleDeposit('${m.key}')">
+        ${paid ? '✓' : '○'}
+      </button>
+    </div>`;
+  }).join('');
+
+  return `<div class="section-title">سجل الاشتراكات الشهرية</div>
+  <div class="month-list">${rows}</div>`;
+}
+
+function renderSettings() {
+  return `
+  <div class="settings-card">
+    <div class="section-title">إعدادات الصندوق</div>
+
+    <label class="setting-label">القسط الشهري الافتراضي (د.أ)</label>
+    <input class="setting-input" type="number" id="inp-amount" value="${state.monthlyAmount}" placeholder="مثال: 123.133" step="0.001"/>
+
+    <label class="setting-label">تاريخ البداية</label>
+    <div class="date-row">
+      <select class="date-select" id="inp-sMonth">${MONTHS.map((n,i)=>`<option value="${i+1}" ${state.startMonth===i+1?'selected':''}>${n}</option>`).join('')}</select>
+      <input class="setting-input" type="number" id="inp-sYear" value="${state.startYear}" style="width:90px"/>
+    </div>
+
+    <label class="setting-label">تاريخ السحب المتوقع</label>
+    <div class="date-row">
+      <select class="date-select" id="inp-eMonth">${MONTHS.map((n,i)=>`<option value="${i+1}" ${state.endMonth===i+1?'selected':''}>${n}</option>`).join('')}</select>
+      <input class="setting-input" type="number" id="inp-eYear" value="${state.endYear}" style="width:90px"/>
+    </div>
+
+    <button class="save-btn" onclick="saveSettings()">💾 حفظ الإعدادات</button>
+  </div>
+
+  <div class="danger-card">
+    <div class="danger-title">⚠️ منطقة الخطر</div>
+    <button class="reset-btn" onclick="resetAll()">🗑️ مسح جميع السجلات</button>
+  </div>`;
+}
+
+function renderShare() {
+  const url = window.location.href;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isAndroid = /android/i.test(navigator.userAgent);
+
+  return `
+  <div class="share-card">
+    <div class="share-title" style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">📲 نصّب التطبيق على هاتفك</div>
+    <div class="share-title">أرسل الرابط لأصدقائك أو نصّبه على شاشتك الرئيسية</div>
+    <div class="share-url">${url}</div>
+    <button class="share-btn" onclick="copyLink()">📋 نسخ الرابط</button>
+    ${navigator.share ? `<button class="share-btn" style="background:var(--green)" onclick="nativeShare()">↗️ مشاركة</button>` : ''}
+  </div>
+
+  <div class="settings-card">
+    <div class="section-title">📱 كيف تنصّبه على هاتفك؟</div>
+
+    ${isIOS ? `
+    <div class="install-steps">
+      <div class="install-step">1️⃣ افتح الرابط في Safari (ليس Chrome)</div>
+      <div class="install-step">2️⃣ اضغط على أيقونة المشاركة ↑ في الأسفل</div>
+      <div class="install-step">3️⃣ اختر "إضافة إلى الشاشة الرئيسية"</div>
+      <div class="install-step">4️⃣ اضغط "إضافة" — جاهز! 🎉</div>
+    </div>` : isAndroid ? `
+    <div class="install-steps">
+      <div class="install-step">1️⃣ افتح الرابط في Chrome</div>
+      <div class="install-step">2️⃣ اضغط على النقاط الثلاث ⋮ في الأعلى</div>
+      <div class="install-step">3️⃣ اختر "إضافة إلى الشاشة الرئيسية"</div>
+      <div class="install-step">4️⃣ اضغط "تثبيت" — جاهز! 🎉</div>
+    </div>` : `
+    <div class="install-steps">
+      <div class="install-step">📱 iPhone: افتح في Safari ← المشاركة ↑ ← إضافة للشاشة</div>
+      <div class="install-step">🤖 Android: افتح في Chrome ← القائمة ⋮ ← إضافة للشاشة</div>
+    </div>`}
+  </div>`;
+}
+
+// ─── Actions ─────────────────────────────────────────────
+function toggleDeposit(key) {
+  state.deposits[key] = !state.deposits[key];
+  if (!state.deposits[key]) delete state.deposits[key];
+  saveState();
+  render();
+  showToast(state.deposits[key] ? '✓ تم تسجيل الدفعة' : 'تم إلغاء الدفعة');
+}
+
+let editingKey = null;
+function startEdit(key, currentAmt) {
+  editingKey = key;
+  const amtDiv = document.getElementById(`amtDisplay-${key}`);
+  if (!amtDiv) return;
+  amtDiv.innerHTML = `
+    <div class="edit-row">
+      <input class="edit-input" type="number" id="editVal-${key}" value="${currentAmt}" step="0.001" autofocus/>
+      <button class="edit-save" onclick="confirmEdit('${key}')">✓</button>
+      <button class="edit-cancel" onclick="cancelEdit('${key}',${currentAmt})">✕</button>
+    </div>`;
+  setTimeout(() => document.getElementById(`editVal-${key}`)?.focus(), 50);
+}
+
+function confirmEdit(key) {
+  const val = parseFloat(document.getElementById(`editVal-${key}`)?.value);
+  if (!isNaN(val) && val > 0) {
+    state.customAmounts[key] = val;
+    state.deposits[key] = true;
+  } else {
+    delete state.customAmounts[key];
+  }
+  saveState();
+  render();
+}
+
+function cancelEdit(key, orig) {
+  const amtDiv = document.getElementById(`amtDisplay-${key}`);
+  if (amtDiv) amtDiv.innerHTML = `${fmt(orig)} د.أ <button class="edit-amt-btn" onclick="startEdit('${key}',${orig})">✏️</button>`;
+}
+
+function saveSettings() {
+  const amt = parseFloat(document.getElementById("inp-amount")?.value);
+  const sM = parseInt(document.getElementById("inp-sMonth")?.value);
+  const sY = parseInt(document.getElementById("inp-sYear")?.value);
+  const eM = parseInt(document.getElementById("inp-eMonth")?.value);
+  const eY = parseInt(document.getElementById("inp-eYear")?.value);
+  if (!isNaN(amt) && amt > 0) state.monthlyAmount = amt;
+  if (sM && sY) { state.startMonth = sM; state.startYear = sY; }
+  if (eM && eY) { state.endMonth = eM; state.endYear = eY; }
+  saveState();
+  showToast("✓ تم حفظ الإعدادات");
+  setTimeout(() => showView("dashboard"), 800);
+}
+
+function resetAll() {
+  if (confirm("هل أنت متأكد؟ سيتم حذف جميع سجلات الدفع.")) {
+    state.deposits = {};
+    state.customAmounts = {};
+    saveState();
+    render();
+    showToast("تم مسح السجلات");
+  }
+}
+
+function copyLink() {
+  navigator.clipboard?.writeText(window.location.href)
+    .then(() => showToast("✓ تم نسخ الرابط"))
+    .catch(() => showToast("انسخ الرابط من شريط العنوان"));
+}
+
+function nativeShare() {
+  navigator.share?.({
+    title: "صندوق الادخار",
+    text: "تطبيق لتتبع اشتراكات صندوق الادخار الشهري",
+    url: window.location.href
+  });
+}
+
+// ─── Init ─────────────────────────────────────────────────
+loadState();
+render();
+</script>
+
+</body>
+</html>
